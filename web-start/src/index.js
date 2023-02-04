@@ -105,6 +105,33 @@ async function saveMessage(messageText) {
 // Loads chat messages history and listens for upcoming ones.
 function loadMessages() {
 	// TODO 8: Load and listen for new messages.
+	const collectionRef = collection(getFirestore(), "messages");
+	const recentMessageQuery = query(
+		collectionRef,
+		orderBy("timestamp", "desc"),
+		limit(12)
+	);
+
+	// QUESTION: DocumentData 와 DocumentSnapshot 의 차이는 무엇인가요?
+	// collection (messages)이 바뀌는것을 감지하는 listener!
+	onSnapshot(recentMessageQuery, function (snapshot) {
+		snapshot.docChanges().forEach(function (change) {
+			// change.type can be 'added' | 'removed' | 'modified';
+			if (change.type === "removed") {
+				deleteMessage(change.doc.id);
+			} else {
+				const message = change.doc.data();
+				displayMessage(
+					change.doc.id,
+					message.timestamp,
+					message.name,
+					message.text,
+					message.profilePicUrl,
+					message.imageUrl
+				);
+			}
+		});
+	});
 }
 
 // Saves a new message containing an image in Firebase.
