@@ -88,6 +88,18 @@ function isUserSignedIn() {
 // Saves a new message on the Cloud Firestore.
 async function saveMessage(messageText) {
 	// TODO 7: Push a new message to Cloud Firestore.
+	try {
+		const collectionRef = collection(getFirestore(), "messages");
+		const message = {
+			name: getUserName(),
+			text: messageText,
+			profilePicUrl: getProfilePicUrl(),
+			timestamp: serverTimestamp(),
+		};
+		return await addDoc(collectionRef, message);
+	} catch (error) {
+		console.log(`Error writing new message to Firebase Firestore ${error}`);
+	}
 }
 
 // Loads chat messages history and listens for upcoming ones.
